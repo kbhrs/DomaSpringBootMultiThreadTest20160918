@@ -1,0 +1,38 @@
+buildscript {
+    ext {
+        springBootVersion = '1.3.7.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'spring-boot'
+
+jar {
+    baseName = 'domaCountTest'
+    version = '0.0.1-SNAPSHOT'
+}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+// doma start
+processResources.destinationDir = compileJava.destinationDir
+compileJava.dependsOn processResources
+// doma end
+
+dependencies {
+    compile('org.seasar.doma.boot:doma-spring-boot-starter:1.1.0')
+    compile "org.flywaydb:flyway-core:3.2.1"
+    runtime('mysql:mysql-connector-java')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
