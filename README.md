@@ -18,8 +18,8 @@ doma-spring-boot-starter:1.1.0 を使用してマルチスレッドで検索を�
 * Menu bar > File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors
     * Enable annotation processing -> check on
     * Store generated sources relative to: Module content root
-* 上記設定後 compile を実行すると src/main/generated というフォルダができる。
-src/main/generated を右クリックして Mark Directory as ... から Generated Source Root に設定する。
+* Gradle task の compileJava を実行 -> src/main/generated というフォルダができる。
+* src/main/generated を右クリックして Mark Directory as ... から Generated Source Root に設定する。
 
 ### IDE として Intellij 以外を使う場合
 * 不明
