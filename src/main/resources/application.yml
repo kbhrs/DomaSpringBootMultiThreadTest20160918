@@ -1,4 +1,1 @@
-spring.datasource.url: jdbc:mysql://[host]/[database]
-spring.datasource.username: [user]
-spring.datasource.password: [password]
 doma.dialect: mysql
