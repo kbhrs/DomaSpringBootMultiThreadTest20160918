@@ -29,7 +29,7 @@ doma-spring-boot-starter:1.1.0 を使用してマルチスレッドで検索を�
 
 ## Database接続情報の設定
 ### doma-spring-boot-starter を使ったテスト実行用
-Spring の流儀に従い「spring.datasource.url」「spring.datasource.username」「spring.datasource.password」を設定
+SpringBoot の流儀に従い「spring.datasource.url」「spring.datasource.username」「spring.datasource.password」を設定
 ### DOMA 単体でのテスト実行用
 src/main/java/com/example/AppConfig.java 内に datasource url username password を記載する
 ## テスト実行
