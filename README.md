@@ -35,3 +35,12 @@ JUnit で以下のテストクラスを実行する
     * src/test/com/example/DomaSpringTest
 * DOMA 単体でのテスト実行用
     * src/test/com/example/DomaTest
+
+# 実行結果
+![testResult](testResult.png)
+* build.gradle に載っていない主な関連物のVersion
+    * DBServer : MySQL 5.6.29 MySQL Community Server (Linux x86_64)
+    * JUnit実行環境
+        * OS : Windows10
+        * IntelliJ IDEA (Community Edition) 2016.3 EAP Build #IC-163.4396.1, built on September 13, 2016
+        * JDK 1.8.0_74
