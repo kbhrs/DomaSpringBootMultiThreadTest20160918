@@ -1,0 +1,2 @@
+# DomaSpringBootMultiThreadTest20160918
+doma-spring-boot-starter:1.1.0 を使用してマルチスレッドで検索を実行した場合に SelectOptions#getCount が正しい結果を返さない場合があることをテストするためのソースコード
