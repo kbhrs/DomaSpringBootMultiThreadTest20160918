@@ -5,8 +5,10 @@ import org.junit.runner.RunWith;
 import org.seasar.doma.jdbc.SelectOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.stereotype.Component;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -47,6 +49,11 @@ public class DomaSpringTest {
     /**
      * doma-spring-boot-starter で複数スレッドで実行した場合、SelectOptions#getCount が正常動作
      * しないことを確認するためのテスト
+     * <p>
+     * この実装方法は適切ではない。<br/>
+     * 少なくとも MySQL では、 SelectOptions＃getCount は、
+     * getCount 対象のselect と同一のトランザクションで実行する必要がある（？）
+     * </p>
      */
     @Test
     public void getCountryMultiThread() throws Exception {
@@ -55,11 +62,61 @@ public class DomaSpringTest {
                 .forEach(i -> getCountrySub("getCountryMultiThread(" + i + ")"));
     }
 
-    private void getCountrySub(String message) {
+    public void getCountrySub(String message) {
         SelectOptions options = SelectOptions.get().count();
         List<CountryEntity> result = countryDao.select(options);
         assertThat("result.size()", result.size(), is(4));
         assertThat("options.getCount()[" + message + "]", options.getCount(), is(4L));
     }
 
+    /**
+     * doma-spring-boot-starter で複数スレッドで実行した場合、SelectOptions#getCount が正常動作
+     * しないことを確認するためのテスト
+     * <p>
+     * この実装方法は適切ではない。<br/>
+     * 少なくとも MySQL では、 SelectOptions＃getCount は、
+     * getCount 対象のselect と同一のトランザクションで実行する必要がある（？）<br/>
+     * この実装方法は @Transactional の使い方が間違っているので
+     * 「getCount 対象のselect と同一のトランザクションで実行する」になっていないので
+     * failになる。（@Transactional は DI しているインスタンス経由でメソッド呼び出さないとダメ）
+     * </p>
+     */
+    @Test
+    public void getCountryMultiThread_methodTx() throws Exception {
+        IntStream.range(0, L_MAX)
+                .parallel()
+                .forEach(i -> getCountrySub("getCountryMultiThread(" + i + ")"));
+    }
+
+    @Transactional
+    public void getCountrySub_tx(String message) {
+        SelectOptions options = SelectOptions.get().count();
+        List<CountryEntity> result = countryDao.select(options);
+        assertThat("result.size()", result.size(), is(4));
+        assertThat("options.getCount()[" + message + "]", options.getCount(), is(4L));
+    }
+
+    @Autowired
+    DomaSpringTransactionalTest domaSpringTransactionalTest;
+
+    @Test
+    public void getCountryMultiThread_di_tx() throws Exception {
+        IntStream.range(0, L_MAX)
+                .parallel()
+                .forEach(i -> domaSpringTransactionalTest.getCountrySub("getCountryMultiThread_tx(" + i + ")"));
+    }
+}
+
+@Component
+class DomaSpringTransactionalTest {
+    @Autowired
+    CountrySpringDao countryDao;
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void getCountrySub(String message) {
+        SelectOptions options = SelectOptions.get().count();
+        List<CountryEntity> result = countryDao.select(options);
+        assertThat("result.size()", result.size(), is(4));
+        assertThat("options.getCount()[" + message + "]", options.getCount(), is(4L));
+    }
 }

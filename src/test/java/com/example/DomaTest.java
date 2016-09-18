@@ -6,6 +6,7 @@ import org.seasar.doma.jdbc.SelectOptions;
 import org.seasar.doma.jdbc.tx.TransactionManager;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -55,5 +56,29 @@ public class DomaTest {
         }
     }
 
+    @Test
+    public void getCountryMultiThread_requiresNew() throws Exception {
+        IntStream.range(0, L_MAX)
+                .parallel()
+                .forEach(i -> getCountrySub_requiresNew("getCountryMultiThread_requiresNew(" + i + ")"));
+    }
+
+    private void getCountrySub_requiresNew(String message) {
+        CountryDomaDao countryDao = new CountryDomaDaoImpl(AppConfig.singleton());
+        TransactionManager tm = AppConfig.singleton().getTransactionManager();
+        try {
+            SelectOptions options = SelectOptions.get().count();
+            String uuid = UUID.randomUUID().toString();
+            tm.requiresNew(() -> {
+                List<CountryEntity> result = countryDao.select(options);
+                assertThat("result.size()", result.size(), is(4));
+            });
+            tm.requiresNew(() -> {
+                assertThat("options.getCount()[" + message + "]", options.getCount(), is(4L));
+            });
+        } catch (JdbcException e) {
+            throw new RuntimeException("MySQL接続エラー。com.example.AppConfig のjavaソースに記載されているdb接続情報を確認してください", e);
+        }
+    }
 
 }
