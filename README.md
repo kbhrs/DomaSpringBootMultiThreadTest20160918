@@ -1,7 +1,11 @@
 # DomaSpringBootMultiThreadTest20160918
 doma-spring-boot-starter:1.1.0 を使用してマルチスレッドで検索を実行した場合に SelectOptions#getCount が正しい結果を返さない場合があることをテストするためのソースコード
 
-(MySQL 5.6 で確認。それ以外のDBでは未確認）
+* 2016/09/18 23:00 現在
+    * エラー発生を確認
+        * MySQL5.6
+    * エラー発生しないことを確認
+        * SQLServer2016
 
 ## 含まれている内容
 以下の２種類の内容が含まれる
