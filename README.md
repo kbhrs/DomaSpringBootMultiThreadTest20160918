@@ -12,6 +12,7 @@ doma-spring-boot-starter:1.1.0 を使用してマルチスレッドで検索を�
 # 事前準備
 ## 共通
 * MySQL サーバ 及び 接続ユーザ 、database
+
 ## DOMAの実行環境設定
 ### IDE として Intellij を使う場合
 * Menu bar > File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors
@@ -19,8 +20,10 @@ doma-spring-boot-starter:1.1.0 を使用してマルチスレッドで検索を�
     * Store generated sources relative to: Module content root
 * 上記設定後 compile を実行すると src/main/generated というフォルダができる。
 src/main/generated を右クリックして Mark Directory as ... から Generated Source Root に設定する。
+
 ### IDE として Intellij 以外を使う場合
 * 不明
+
 ## Database接続情報の設定
 ### doma-spring-boot-starter を使ったテスト実行用
 Spring の流儀に従い「spring.datasource.url」「spring.datasource.username」「spring.datasource.password」を設定
