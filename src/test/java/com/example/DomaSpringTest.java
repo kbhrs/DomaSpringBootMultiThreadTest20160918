@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -50,7 +49,7 @@ public class DomaSpringTest {
      * doma-spring-boot-starter で複数スレッドで実行した場合、SelectOptions#getCount が正常動作
      * しないことを確認するためのテスト
      * <p>
-     * この実装方法は適切ではない。<br/>
+     * この実装方法は適切ではないのでテストが失敗する。<br/>
      * 少なくとも MySQL では、 SelectOptions＃getCount は、
      * getCount 対象のselect と同一のトランザクションで実行する必要がある（？）
      * </p>
@@ -73,7 +72,7 @@ public class DomaSpringTest {
      * doma-spring-boot-starter で複数スレッドで実行した場合、SelectOptions#getCount が正常動作
      * しないことを確認するためのテスト
      * <p>
-     * この実装方法は適切ではない。<br/>
+     * この実装方法は適切ではないのでテストが失敗する。<br/>
      * 少なくとも MySQL では、 SelectOptions＃getCount は、
      * getCount 対象のselect と同一のトランザクションで実行する必要がある（？）<br/>
      * この実装方法は @Transactional の使い方が間違っているので
@@ -99,11 +98,26 @@ public class DomaSpringTest {
     @Autowired
     DomaSpringTransactionalTest domaSpringTransactionalTest;
 
+    /**
+     * トランザクション管理すれば正しく動作することを確認するテスト
+     * @throws Exception
+     */
     @Test
-    public void getCountryMultiThread_di_tx() throws Exception {
+    public void getCountryMultiThread_transactional() throws Exception {
         IntStream.range(0, L_MAX)
                 .parallel()
-                .forEach(i -> domaSpringTransactionalTest.getCountrySub("getCountryMultiThread_tx(" + i + ")"));
+                .forEach(i -> domaSpringTransactionalTest.getCountrySub("getCountryMultiThread_transactional(" + i + ")"));
+    }
+
+    /**
+     * Read Only Transactionでも良いことを確認するためのテスト
+     * @throws Exception
+     */
+    @Test
+    public void getCountryMultiThread_transactional_read_only() throws Exception {
+        IntStream.range(0, L_MAX)
+                .parallel()
+                .forEach(i -> domaSpringTransactionalTest.getCountrySubReadOnly("getCountryMultiThread_transactional_read_only(" + i + ")"));
     }
 }
 
@@ -112,8 +126,16 @@ class DomaSpringTransactionalTest {
     @Autowired
     CountrySpringDao countryDao;
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void getCountrySub(String message) {
+        SelectOptions options = SelectOptions.get().count();
+        List<CountryEntity> result = countryDao.select(options);
+        assertThat("result.size()", result.size(), is(4));
+        assertThat("options.getCount()[" + message + "]", options.getCount(), is(4L));
+    }
+
+    @Transactional(readOnly = true)
+    public void getCountrySubReadOnly(String message) {
         SelectOptions options = SelectOptions.get().count();
         List<CountryEntity> result = countryDao.select(options);
         assertThat("result.size()", result.size(), is(4));
